@@ -7,7 +7,7 @@ const Review = require("../models/Review");
 
 //create product with image
 const createNewProduct = async (req, res) => {
-  // req.body.user = req.user.userId;
+  req.body.user = req.user.userId;
   let imageUrl = ''
   const image = req.files.image;
   if (!image.mimetype.startsWith("image")) {
