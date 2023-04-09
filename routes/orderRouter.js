@@ -1,14 +1,21 @@
 const express = require('express')
+const {
+    authenticateUser,
+} = require("../middleware/authenticate")
 
 const {
     newOrder,
-    allOrders
+    allOrders,
+    singleOrder
 } = require('../controllers/orderController')
 
 const router = express.Router()
 
 router.route("/")
-.post(newOrder)
+.post([authenticateUser], newOrder)
 .get(allOrders)
+
+router.route('/:orderId')
+.get(singleOrder)
 
 module.exports = router
