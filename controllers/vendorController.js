@@ -15,12 +15,12 @@ const createVendorProfile = async (req, res) => {
     } = req.body
     let user;
     // check if user exist
-    const existingUser = User.findOne({
+    const existingUser = await User.findOne({
         email: email
     })
 
     if (existingUser) {
-        const existingProfile = VendorProfle.findOne({
+        const existingProfile = await VendorProfle.findOne({
             user: {_id: existingUser._id}
         })
         if (existingProfile) {
