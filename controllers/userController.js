@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors/index");
+const OrderItem = require('../models/OrderItem')
+const formatProduct = require('../utils/formatProduct')
 const {
   createToken,
   userToken,
@@ -32,7 +34,6 @@ const register = async (req, res) => {
 //login user
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.signedCookies.token);
   if (!email || !password) {
     throw new BadRequestError("provide email and password");
   }
@@ -91,4 +92,28 @@ const updateUser = async (req, res) => {
   });
 };
 
-module.exports = { register, loginUser, logout, getAllUsers, getUser, updateUser};
+const userOrderItems = async (req, res) => {
+  const { userId } = req.params
+  const orderItems = await OrderItem.find({
+    customer: {_id: userId}
+  }).sort('-updatedAt')
+  .populate('product')
+  const items = orderItems.map(item => {
+    return {
+      orderItemId: item._id,
+      product: formatProduct(item.product),
+      customerId: item.customer
+    }
+  })
+  res.status(StatusCodes.OK).json(items)
+}
+
+module.exports = { 
+  register, 
+  loginUser, 
+  logout, 
+  getAllUsers, 
+  getUser, 
+  updateUser,
+  userOrderItems
+};
