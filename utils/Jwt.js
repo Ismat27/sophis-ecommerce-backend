@@ -12,7 +12,7 @@ const decodeToken = (token) => {
 };
 
 //add token tocookie
-const addTokonToCookie = ({ res, user }) => {
+const addTokenToCookie = ({ res, user }) => {
   const token = createToken({ payload: user });
   const cookieExpiration = 1000 * 60 * 60 * 1; //24hrs for now
   res.cookie("token", token, {
@@ -23,4 +23,4 @@ const addTokonToCookie = ({ res, user }) => {
   });
 };
 
-module.exports = { decodeToken, createToken, addTokonToCookie };
+module.exports = { decodeToken, createToken, addTokenToCookie };
