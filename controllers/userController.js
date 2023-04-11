@@ -6,7 +6,7 @@ const formatProduct = require('../utils/formatProduct')
 const {
   createToken,
   userToken,
-  addTokonToCookie,
+  addTokenToCookie,
   grantUserPermission,
 } = require("../utils/index");
 
@@ -27,7 +27,7 @@ const register = async (req, res) => {
   const user = await User.create(req.body);
   const tokenUser = userToken(user);
   const token = createToken({ payload: tokenUser });
-  addTokonToCookie({ res, user: tokenUser });
+  addTokenToCookie({ res, user: tokenUser });
   res.status(StatusCodes.CREATED).json({ token });
 };
 
@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
   }
   const tokenUser = userToken(user);
   const token = createToken({ payload: tokenUser });
-  addTokonToCookie({ res, user: tokenUser });
+  addTokenToCookie({ res, user: tokenUser });
   res.status(StatusCodes.OK).json({ token });
 };
 
@@ -93,7 +93,7 @@ const updateUser = async (req, res) => {
 };
 
 const userOrderItems = async (req, res) => {
-  const { userId } = req.params
+  const { userId } = req.user
   const orderItems = await OrderItem.find({
     customer: {_id: userId}
   }).sort('-updatedAt')
