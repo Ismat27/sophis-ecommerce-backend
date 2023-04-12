@@ -11,7 +11,12 @@ const createVendorProfile = async (req, res) => {
         displayName,
         companyAddress,
         billingAddress,
-        CACName
+        CACName,
+        firstName,
+        lastName,
+        phoneNumber,
+        password,
+        confirmPassword,
     } = req.body
     let user;
     // check if user exist
@@ -31,7 +36,12 @@ const createVendorProfile = async (req, res) => {
     else {
         // create new user
         user = await User.create({
-            email: email
+            email: email,
+            firstName,
+            lastName,
+            phoneNumber,
+            password,
+            confirmPassword
         })
     }
     const newProfile = await VendorProfle.create({
@@ -49,7 +59,7 @@ const createVendorProfile = async (req, res) => {
 
 // to get products ordered from a vendor
 const vendorOrderItems = (req, res) => {
-    const { userId } = req.params
+    const { userId } = req.user
     if (!userId) {
         throw new  BadRequestError('unknown vendor')
     }
