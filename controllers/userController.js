@@ -14,10 +14,13 @@ const {
 
 //register user
 const register = async (req, res) => {
-  const { email } = req.body;
+  const { email, password, confirmPassword } = req.body;
   const emailAlreadyExists = await User.findOne({ email });
   if (emailAlreadyExists) {
     throw new BadRequestError("Email already exists");
+  }
+  if (password !== confirmPassword) {
+    throw new BadRequestError("Passwords not equal");
   }
   // first registered user is an admin
   const isFirstAccount = (await User.countDocuments({})) === 0;
