@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const { model, Schema } = mongoose;
-const BadRequestError = require('../errors/badrequest')
 
 const userSchema = Schema(
   {
@@ -40,11 +39,6 @@ const userSchema = Schema(
       minLength: 8,
       required: [true, "please provide password"],
     },
-    confirmPassword: {
-      type: String,
-      minLength: 8,
-      required: [true, "please provide password"],
-    },
     role: {
       type: String,
       required: [true, "please provide a role"],
@@ -56,14 +50,8 @@ const userSchema = Schema(
 );
 
 userSchema.pre("save", async function () {
-  if (this.password === this.confirmPassword) {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    this.confirmPassword = await bcrypt.hash(this.confirmPassword, salt);
-  }
-  else {
-    throw new BadRequestError('passwords do not match')
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 userSchema.methods.comparePasswords = async function (userPassword) {
