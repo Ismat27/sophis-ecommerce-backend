@@ -96,7 +96,7 @@ const updateUser = async (req, res) => {
 };
 
 const userOrderItems = async (req, res) => {
-  const { userId } = req.user
+  const { userId } = req.params
   const orderItems = await OrderItem.find({
     customer: {_id: userId}
   }).sort('-updatedAt')
