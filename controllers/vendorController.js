@@ -58,12 +58,12 @@ const createVendorProfile = async (req, res) => {
 }
 
 // to get products ordered from a vendor
-const vendorOrderItems = (req, res) => {
-    const { userId } = req.user
+const vendorOrderItems = async (req, res) => {
+    const { userId } = req.params
     if (!userId) {
         throw new  BadRequestError('unknown vendor')
     }
-    const vendor = VendorProfle.findOne({
+    const vendor = await VendorProfle.findOne({
         user: {_id: userId}
     })
     if (!vendor) {
@@ -72,14 +72,36 @@ const vendorOrderItems = (req, res) => {
     if (!vendor.isVerified) {
         throw new UnauthorizedError('vendor not verified')
     }
-    const orderItems = OrderItem.find({
+    const orderItems = await OrderItem.find({
         product: { user: {_id: userId} }
     }).populate('product').sort('-updatedAt')
 
     res.status(StatusCodes.OK).json({ orderItems })
 }
+const verifyVendor = async (req, res) => {
+    const { verify, userId } = req.body
+    if (!userId) {
+        throw new BadRequestError('unknown vendor')
+    }
+    const vendor = await VendorProfle.findOneAndUpdate(
+        { user: { _id: userId } },
+        { isVerified: verify },
+        { runValidators: true, new: true}
+    )
+    if (!vendor) {
+        throw new UnauthorizedError('not a vendor')
+    }
+    res.status(StatusCodes.OK).json(vendor)
+}
+
+const fetchVendors = async (req, res) => {
+    const vendors = await VendorProfle.find().populate('user')
+    res.status(StatusCodes.OK).json(vendors)
+}
 
 module.exports = {
     createVendorProfile,
-    vendorOrderItems
+    vendorOrderItems,
+    verifyVendor,
+    fetchVendors
 }
