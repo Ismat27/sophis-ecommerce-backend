@@ -1,4 +1,5 @@
 const express = require('express')
+const { authenticateUser } = require('../middleware/authenticate')
 const {
     createVendorProfile,
     vendorOrderItems
@@ -7,6 +8,6 @@ const {
 const router = express.Router()
 
 router.route('/').post(createVendorProfile)
-router.route('/:userId/order_items').get(vendorOrderItems)
+router.route('/:userId/order-items').get(authenticateUser, vendorOrderItems)
 
 module.exports = router
