@@ -23,7 +23,7 @@ const createNewProduct = async (req, res) => {
   const {} = req.body;
   // const product = req.body;
   const product = await Product.create({...req.body, images:[imageUrl]});
-  res.status(StatusCodes.CREATED).json({ ...product });
+  res.status(StatusCodes.CREATED).json({ product });
 };
 
 //create product
