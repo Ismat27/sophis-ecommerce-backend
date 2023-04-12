@@ -1,8 +1,9 @@
 const OrderItem = require('../models/OrderItem')
-const VendorProfle = require('../models/VendorProfile')
+const VendorProfile = require('../models/VendorProfile')
 const User = require('../models/User')
 const { BadRequestError, UnauthorizedError, APIError } = require('../errors')
 const { StatusCodes } = require('http-status-codes')
+const Product = require('../models/Product')
 
 // create new vendor profile
 const createVendorProfile = async (req, res) => {
@@ -25,7 +26,7 @@ const createVendorProfile = async (req, res) => {
     })
 
     if (existingUser) {
-        const existingProfile = await VendorProfle.findOne({
+        const existingProfile = await VendorProfile.findOne({
             user: {_id: existingUser._id}
         })
         if (existingProfile) {
@@ -44,7 +45,7 @@ const createVendorProfile = async (req, res) => {
             confirmPassword
         })
     }
-    const newProfile = await VendorProfle.create({
+    const newProfile = await VendorProfile.create({
         displayName,
         companyAddress,
         billingAddress,
@@ -63,8 +64,8 @@ const vendorOrderItems = async (req, res) => {
     if (!userId) {
         throw new  BadRequestError('unknown vendor')
     }
-    const vendor = await VendorProfle.findOne({
-        user: {_id: userId}
+    const vendor = await VendorProfile.findOne({
+        user: userId
     })
     if (!vendor) {
         throw new UnauthorizedError('not a vendor')
@@ -72,9 +73,13 @@ const vendorOrderItems = async (req, res) => {
     if (!vendor.isVerified) {
         throw new UnauthorizedError('vendor not verified')
     }
-    const orderItems = await OrderItem.find({
-        product: { user: {_id: userId} }
-    }).populate('product').sort('-updatedAt')
+    const vendorProducts = await Product.find(
+        { user: userId }
+    )
+    const ids = vendorProducts.map(item => item._id)
+    const orderItems = await OrderItem.find(
+        { product: { $in: ids} }
+    ).populate('product').sort('-updatedAt')
 
     res.status(StatusCodes.OK).json({ orderItems })
 }
@@ -83,7 +88,7 @@ const verifyVendor = async (req, res) => {
     if (!userId) {
         throw new BadRequestError('unknown vendor')
     }
-    const vendor = await VendorProfle.findOneAndUpdate(
+    const vendor = await VendorProfile.findOneAndUpdate(
         { user: { _id: userId } },
         { isVerified: verify },
         { runValidators: true, new: true}
@@ -95,7 +100,7 @@ const verifyVendor = async (req, res) => {
 }
 
 const fetchVendors = async (req, res) => {
-    const vendors = await VendorProfle.find().populate('user')
+    const vendors = await VendorProfile.find().populate('user')
     res.status(StatusCodes.OK).json(vendors)
 }
 
