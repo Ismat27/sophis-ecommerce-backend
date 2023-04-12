@@ -38,6 +38,7 @@ const userRouter = require("./routes/userRouter");
 const productRouter = require("./routes/productRouter");
 const reviewRouter = require("./routes/reviewRouter");
 const orderRouter = require("./routes/orderRouter")
+const vendorRouter = require("./routes/vendorRouter")
 
 const notFound = require("./middleware/not-found");
 
@@ -51,6 +52,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/orders", orderRouter)
+app.use("/api/v1/vendors", vendorRouter)
 
 //test route
 app.get("/", (req, res, next) => {
