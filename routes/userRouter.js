@@ -7,7 +7,8 @@ const {
   getAllUsers,
   getUser,
   updateUser,
-  userOrderItems
+  userOrderItems,
+  userProducts
 } = require("../controllers/userController");
 
 router.route("/register").post(register);
@@ -17,5 +18,6 @@ router.route("/").get(getAllUsers);
 router.route("/single-user").get(authenticateUser, getUser);
 router.route("/:id").put(updateUser)
 router.route("/:userId/order-items").get(authenticateUser, userOrderItems)
+router.route("/:userId/products").get(userProducts)
 
 module.exports = router;

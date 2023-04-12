@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const { StatusCodes } = require("http-status-codes");
-const { BadRequestError, NotFoundError } = require("../errors/index");
+const { BadRequestError, NotFoundError, UnauthorizedError } = require("../errors/index");
 const OrderItem = require('../models/OrderItem')
 const formatProduct = require('../utils/formatProduct')
 const {
@@ -9,6 +9,8 @@ const {
   addTokenToCookie,
   grantUserPermission,
 } = require("../utils/index");
+const Product = require("../models/Product");
+const VendorProfile = require('../models/VendorProfile')
 
 
 
@@ -111,6 +113,20 @@ const userOrderItems = async (req, res) => {
   res.status(StatusCodes.OK).json(items)
 }
 
+const userProducts = async (req, res) => {
+  const { userId } = req.params
+  const vendor = await VendorProfile.findOne(
+    { user: { _id: userId } }
+  )
+  if (!vendor) {
+    throw new NotFoundError('not a vendor')
+  }
+  const products = await Product.find(
+    { user: { _id: userId } }
+  )
+  res.status(StatusCodes.OK).json(products)
+}
+
 module.exports = { 
   register, 
   loginUser, 
@@ -118,5 +134,6 @@ module.exports = {
   getAllUsers, 
   getUser, 
   updateUser,
-  userOrderItems
+  userOrderItems,
+  userProducts
 };
