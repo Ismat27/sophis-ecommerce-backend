@@ -1,41 +1,27 @@
-const express = require("express");
-const cors = require('cors')
-const errorHandlerMiddleware = require('./middleware/error-handler')
-const app = express();
 require("dotenv").config();
 require("express-async-errors");
-
-// cors headers
-
-app.use(cors())
-
-//other packages
+const express = require("express");
+const cors = require('cors')
 const cookieParser = require("cookie-parser");
 const cloudinary = require("cloudinary").v2;
 const fileUpload = require("express-fileupload");
-const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
 const helmet = require("helmet");
 const xss = require("xss-clean");
-
-//swagger ui
-const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerDocument = YAML.load("./swagger.yaml");
-//const swaggerDocument = require("./swagger.json");
-app.get("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-//database
-let DATABASE_URL
-if (process.env.NODE_ENV === 'development') {
-  DATABASE_URL = process.env.DEV_DATABASE_URL
-}
-if (process.env.NODE_ENV === 'test') {
-  DATABASE_URL = process.env.TEST_DATABASE_URL
-}
-if (process.env.NODE_ENV === 'production') {
-  DATABASE_URL = process.env.DATABASE_URL
-}
 const connectDb = require("./db/connectdb");
+
+// routers
+const userRouter = require("./routes/userRouter");
+const productRouter = require("./routes/productRouter");
+const reviewRouter = require("./routes/reviewRouter");
+const vendorRouter = require("./routes/vendorRouter");
+const orderRouter = require("./routes/orderRouter")
+
+// middlewares
+const errorHandlerMiddleware = require('./middleware/error-handler')
+const notFound = require("./middleware/not-found");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -43,15 +29,7 @@ cloudinary.config({
   api_secret: process.env.CLOUD_SECRET,
 });
 
-//routers
-const userRouter = require("./routes/userRouter");
-const productRouter = require("./routes/productRouter");
-const reviewRouter = require("./routes/reviewRouter");
-const vendorRouter = require("./routes/vendorRouter");
-const orderRouter = require("./routes/orderRouter")
-const vendorRouter = require("./routes/vendorRouter")
-
-const notFound = require("./middleware/not-found");
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,24 +39,31 @@ app.use(helmet());
 app.use(cors());
 app.use(xss());
 
-//app routes
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/vendors", vendorRouter);
-app.use("/api/v1/products", productRouter);
-app.use("/api/v1/reviews", reviewRouter);
-app.use("/api/v1/orders", orderRouter)
-app.use("/api/v1/vendors", vendorRouter)
+//swagger ui
+//const swaggerDocument = require("./swagger.json");
+app.get("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //test route
 app.get("/", (req, res, next) => {
   res.send("This is the home page");
 });
 
+//app routes
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/vendors", vendorRouter);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/orders", orderRouter)
+
 app.use(notFound);
 app.use(errorHandlerMiddleware)
 
 const PORT = process.env.PORT || 5000;
-connectDb(DATABASE_URL);
-app.listen(PORT, () => {
-  console.log(`App listening on port: ${PORT}`);
-});
+connectDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`App listening on port: ${PORT}`);
+  });
+})
+.catch((error) => {
+  console.log(error);
+})

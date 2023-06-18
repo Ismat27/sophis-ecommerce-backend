@@ -14,7 +14,7 @@ const {
   getTopBrands,
   getNewArrival,
   recommendedProducts,
-  topVendors
+  topVendors,
   createNewProduct
 } = require("../controllers/productController");
 

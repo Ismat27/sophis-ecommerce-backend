@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const { model, Schema } = mongoose;
 
-const userSchema = Schema(
+const userSchema = new Schema(
   {
     firstName: {
       type: String,

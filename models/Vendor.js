@@ -4,7 +4,7 @@ const validator = require("validator");
 const { model, Schema } = mongoose;
 const VendorReview = require("./VendorReview");
 
-const vendorSchema = Schema(
+const vendorSchema = new Schema(
   {
     firstName: {
       type: String,
