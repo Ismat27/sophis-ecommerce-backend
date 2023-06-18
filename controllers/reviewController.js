@@ -4,6 +4,7 @@ const { StatusCodes } = require("http-status-codes");
 const { NotFoundError, BadRequestError } = require("../errors/index");
 const { grantUserPermission } = require("../utils/index");
 
+//create review
 const createReview = async (req, res) => {
   const { product: productId } = req.body;
   const isProductValid = await Product.findOne({ _id: productId });
@@ -27,7 +28,7 @@ const createReview = async (req, res) => {
 const getAllReviews = async (req, res) => {
   const reviews = await Review.find({}).populate({
     path: "product",
-    select: "name company price description",
+    select: "name company price",
   });
   if (!reviews) {
     throw new NotFoundError("no review found");

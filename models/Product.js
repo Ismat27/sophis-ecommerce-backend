@@ -7,7 +7,7 @@ const productSchema = new Schema(
       type: String,
       trim: true,
       required: [true, "please provide product name"],
-      maxlength: [80, "name can not be more than 80 characters"],
+      maxlength: [200, "name can not be more than 80 characters"],
     },
     price: {
       type: Number,
@@ -20,23 +20,46 @@ const productSchema = new Schema(
     },
     description: {
       type: String,
-      required: [true, "please provide product category"],
+      required: [true, "please provide product description"],
       maxlength: [
-        700,
+        2000,
         "product description can not be more than 700 characters",
       ],
+    },
+    specification: {
+      type: String,
+      maxlength: [
+        2000,
+        "product specification can not be more than 700 characters",
+      ],
+      default: "product specification",
     },
     featured: {
       type: Boolean,
       default: false,
     },
+    discount: {
+      required: [true, "please provide discount"],
+      type: Number,
+      default: 0,
+    },
+    tax: {
+      type: Number,
+      required: [true, "provide tax value"],
+      default: 0,
+    },
     images: {
       type: [String],
       default: ["/uploads/couch.jpeg"],
     },
-    company: {
+    brand: {
       type: String,
-      required: [true, "please provide product company"],
+      required: [true, "please provide brand"],
+    },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: "Vendor",
+      required: [true, "please provide vendor"],
     },
     colors: {
       type: [String],
@@ -61,13 +84,8 @@ const productSchema = new Schema(
       default: 0,
     },
     size: {
-      type: String,
-      default: "size",
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      type: [String],
+      default: ["size"],
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }

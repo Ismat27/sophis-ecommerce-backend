@@ -67,16 +67,23 @@ const logout = (req, res) => {
 
 // get all users
 const getAllUsers = async (req, res) => {
-  const users = await User.find({ role: "user" }).select("-password");
-  if (!users) {
+  let users = User.find({ role: "user" }).select(
+    "-password -confirmPassword -createdAt -updatedAt"
+  );
+  const page = Number(req.query.page) || 1;
+  const limit = 7;
+  const skip = (page - 1) * limit;
+  users = users.skip(skip).limit(limit);
+  const limitedUsers = await users;
+  if (!limitedUsers) {
     throw new BadRequestError(`no user found`);
   }
-  res.status(StatusCodes.OK).json({ users });
+  res.status(StatusCodes.OK).json({ users: limitedUsers });
 };
 
 const getUser = async (req, res) => {
   const user = await User.findOne({ _id: req.user.userId }).select(
-    "-password -comfirmPassword"
+    "-password -confirmPassword"
   );
   if (!user) {
     throw new NotFoundError(`no usser with the id: ${req.user.userId}`);

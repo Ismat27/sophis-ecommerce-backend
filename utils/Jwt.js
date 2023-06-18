@@ -14,7 +14,7 @@ const decodeToken = (token) => {
 //add token tocookie
 const addTokenToCookie = ({ res, user }) => {
   const token = createToken({ payload: user });
-  const cookieExpiration = 1000 * 60 * 60 * 1; //24hrs for now
+  const cookieExpiration = 1000 * 60 * 60 * 1;
   res.cookie("token", token, {
     httpOnly: true,
     expire: Date.now() + cookieExpiration,

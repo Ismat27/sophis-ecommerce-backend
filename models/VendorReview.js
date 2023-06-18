@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
-const Product = require("./Product");
 const { Schema, model } = mongoose;
-/**const Product = require('../models/Product')*/
 
-const reviewSchema = new Schema(
+const vendorReview = new Schema(
   {
     title: {
       type: String,
@@ -26,34 +24,32 @@ const reviewSchema = new Schema(
       ref: "User",
       required: true,
     },
-    product: {
+    vendor: {
       type: Schema.Types.ObjectId,
-      ref: "Product",
+      ref: "Vendor",
       required: true,
     },
   },
   { timestamps: true }
 );
+vendorReview.index({ vendor: 1, user: 1 }, { unique: true });
 
-reviewSchema.index({ product: 1, user: 1 }, { unique: true });
-
-reviewSchema.statics.averageRating = async function (productId) {
+vendorReview.statics.averageRating = async function (vendorId) {
   const ratingAverage = await this.aggregate([
-    { $match: { product: productId } },
+    { $match: { vendor: vendorId } },
     {
       $group: {
         _id: null,
-        ratingAverage: { $avg: "$rating" },
+        averageRating: { $avg: "$rating" },
         numberOfReviews: { $sum: 1 },
       },
     },
   ]);
   try {
-    //can also use Product.findOneAndUpdate
-    await this.model("Product").findOneAndUpdate(
-      { _id: productId },
+    await this.model("Vendor").findOneAndUpdate(
+      { _id: vendorId },
       {
-        averageRating: Math.ceil(ratingAverage[0]?.ratingAverage || 0),
+        averageRating: Math.ceil(ratingAverage[0]?.averageRating || 0),
         numberOfReviews: ratingAverage[0]?.numberOfReviews || 0,
       }
     );
@@ -62,12 +58,12 @@ reviewSchema.statics.averageRating = async function (productId) {
   }
 };
 
-reviewSchema.post("save", async function () {
-  await this.constructor.averageRating(this.product);
+vendorReview.post("save", async function () {
+  await this.constructor.averageRating(this.vendor);
 });
 
-reviewSchema.post("remove", async function () {
-  await this.constructor.averageRating(this.product);
+vendorReview.post("remove", async function () {
+  await this.constructor.averageRating(this.vendor);
 });
 
-module.exports = model("Review", reviewSchema);
+module.exports = model("VendorReview", vendorReview);
